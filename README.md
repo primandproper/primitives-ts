@@ -12,6 +12,10 @@ is the only server tier there is — so this module carries nothing that exists 
 a database, a broker or a secret manager. Code that needs to _talk_ to a service built on
 `platform-go` wants `platform-client-ts`, not this.
 
+Identifiers are the case worth naming, because the package name does not sound server-tier:
+a server issues IDs and a client receives opaque strings. Generating one here is a way to
+have it rejected by the service you send it to, so there is no `identifiers` package.
+
 ## Packages
 
 Every package is exactly one of two modalities (see `CLAUDE.md`): **universal** (pure
@@ -25,7 +29,6 @@ logic, one build) or **isomorphic** (same import resolves per-environment).
 | `@primandproper/retry`           | Retry policies (exponential backoff + jitter)                           |
 | `@primandproper/numbers`         | Number utilities (rounding, scaling, yield math)                        |
 | `@primandproper/bitmask`         | Immutable bigint-backed bitmask over unsigned integers                  |
-| `@primandproper/identifiers`     | Unique ID generation + validation (nanoid random, ulid sortable)        |
 | `@primandproper/fake`            | Seeded test-data generation (thin `@faker-js/faker` wrapper)            |
 | `@primandproper/encoding`        | `Encoder`/`ServerEncoderDecoder` over JSON, YAML, XML, TOML             |
 | `@primandproper/circuitbreaking` | Circuit breakers (noop + partitioned)                                   |
