@@ -4,10 +4,17 @@ Guidance for Claude Code when working in this repository.
 
 ## Project Overview
 
-`@primandproper/platform-ts` is a TypeScript monorepo of isomorphic infrastructure
-abstractions — the TypeScript sibling of `platform-go`. Each package exposes a stable
-interface with swappable provider implementations selected by config. pnpm workspace,
-Turborepo, ESM-only, Node 20+.
+`primitives-ts` is a TypeScript monorepo of isomorphic infrastructure abstractions — the
+TypeScript sibling of `primitives-go`. Each package exposes a stable interface with
+swappable provider implementations selected by config. pnpm workspace, Turborepo,
+ESM-only, Node 20+.
+
+**Scope is the browser and Node scripts.** No service is written in TypeScript —
+`platform-go` is the only server tier — so a package whose reason to exist is sitting
+beside a database, a broker, an object store or a secret manager does not belong here.
+Talking to a service built on `platform-go` is `platform-client-ts`'s job, not this
+module's. When in doubt: would a browser tab or a one-off script ever construct this? If
+no, it is out of scope.
 
 ## Common Commands
 
@@ -26,7 +33,7 @@ Run one package's tests: `pnpm --filter @primandproper/cache test`.
 
 ## Package modality (the core architectural rule)
 
-Every package is exactly one of three modalities. This drives its `package.json`
+Every package is exactly one of two modalities. This drives its `package.json`
 `exports`, its tsup entries, and its lint rules.
 
 - **Universal** — pure logic, one build, no env-specific code. **No Node built-ins, no DOM
@@ -35,8 +42,6 @@ Every package is exactly one of three modalities. This drives its `package.json`
   Two build entries (`src/index.node.ts`, `src/index.browser.ts`) wiring different default
   providers behind an **identical** interface + factory signature, so call-site code is
   copy-paste portable between contexts. e.g. `observability`, `cache`.
-- **Server-only** — Node bundle, `node`/`default` exports only (no `browser`). May use Node
-  built-ins. e.g. `secrets`, `database`.
 
 Conditional `exports` shape for isomorphic packages:
 
