@@ -9,7 +9,7 @@ between a script and a page.
 
 **Scope: the browser and Node scripts.** No service is built in TypeScript — `platform-go`
 is the only server tier there is — so this module carries nothing that exists to run beside
-a database, a broker or a secret manager. Code that needs to *talk* to a service built on
+a database, a broker or a secret manager. Code that needs to _talk_ to a service built on
 `platform-go` wants `platform-client-ts`, not this.
 
 ## Packages
@@ -34,20 +34,20 @@ logic, one build) or **isomorphic** (same import resolves per-environment).
 
 ### Isomorphic
 
-| Package                        | Purpose                                                                   |
-| ------------------------------ | ------------------------------------------------------------------------- |
-| `@primandproper/observability` | `Logger` (pino on Node, console in browser) + OTel tracer/meter aliases   |
-| `@primandproper/cache`         | `Cache<T>` (memory/redis on Node, memory/web-storage in browser)          |
-| `@primandproper/cryptography`  | `Encryptor` + `Hasher` over WebCrypto                                     |
-| `@primandproper/random`        | Cryptographically secure random (hex, base32, base64url) over WebCrypto   |
-| `@primandproper/compression`   | `Compressor` interface with swappable providers                           |
-| `@primandproper/cookies`       | `CookieStore` interface with swappable providers                          |
-| `@primandproper/httpclient`    | Thin `fetch` wrapper with OpenTelemetry spans                             |
-| `@primandproper/ratelimiting`  | `RateLimiter` interface with swappable providers                          |
-| `@primandproper/eventstream`   | `EventStream` over SSE and WebSocket                                      |
-| `@primandproper/analytics`     | `EventReporter` interface with swappable providers                        |
-| `@primandproper/eventcapture`  | Non-blocking high-volume event capture draining to a swappable sink       |
-| `@primandproper/featureflags`  | `FeatureFlagManager` with typed evaluation, OpenFeature-backed            |
+| Package                        | Purpose                                                                 |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| `@primandproper/observability` | `Logger` (pino on Node, console in browser) + OTel tracer/meter aliases |
+| `@primandproper/cache`         | `Cache<T>` (memory/redis on Node, memory/web-storage in browser)        |
+| `@primandproper/cryptography`  | `Encryptor` + `Hasher` over WebCrypto                                   |
+| `@primandproper/random`        | Cryptographically secure random (hex, base32, base64url) over WebCrypto |
+| `@primandproper/compression`   | `Compressor` interface with swappable providers                         |
+| `@primandproper/cookies`       | `CookieStore` interface with swappable providers                        |
+| `@primandproper/httpclient`    | Thin `fetch` wrapper with OpenTelemetry spans                           |
+| `@primandproper/ratelimiting`  | `RateLimiter` interface with swappable providers                        |
+| `@primandproper/eventstream`   | `EventStream` over SSE and WebSocket                                    |
+| `@primandproper/analytics`     | `EventReporter` interface with swappable providers                      |
+| `@primandproper/eventcapture`  | Non-blocking high-volume event capture draining to a swappable sink     |
+| `@primandproper/featureflags`  | `FeatureFlagManager` with typed evaluation, OpenFeature-backed          |
 
 ## Parity with primitives-go
 
