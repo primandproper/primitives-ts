@@ -1,27 +1,37 @@
+# Publish to npm. Nothing here runs on a push to main: `main` is not a release
+# channel, matching primitives-go, primitives-kt and primitives-swift, whose
+# ecosystems (Go modules, JitPack, SwiftPM) resolve tags and nothing else.
+#
+# A release happens when you push a `v*` tag, and only then. The versions that
+# go out are whatever is in the package.json files at that tag — `changeset
+# publish` skips anything already on the registry — so cutting a release is:
+#
+#   pnpm changeset version     # or edit versions by hand
+#   git commit -am "release: <what shipped>"
+#   git tag -a v0.2.0 -m "..." && git push --follow-tags
+#
+# See RELEASING.md.
 name: Release
 
 on:
   push:
-    branches: [main]
+    tags: ["v*"]
 
-# Don't run two version/publish passes at once.
+# Never two publishes at once, and never cancel one midway.
 concurrency:
-  group: release-${{ github.workflow }}
+  group: release
   cancel-in-progress: false
 
 permissions:
-  contents: write # push the "version packages" PR branch + git tags
-  pull-requests: write # open/update the "version packages" PR
+  contents: read
   id-token: write # npm provenance (OIDC)
 
 jobs:
-  release:
-    name: Version or publish
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # changesets needs full history
 
       - uses: pnpm/action-setup@v4
 
@@ -39,7 +49,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Never version or publish off a broken tree.
+      # Never publish off a broken tree. A tag that fails here publishes nothing;
+      # fix it on main and cut another tag.
       - name: Lint
         run: pnpm run lint
 
@@ -49,23 +60,13 @@ jobs:
       - name: Test
         run: pnpm run test
 
-      # With pending changesets: opens/updates a "version packages" PR that
-      # bumps ONLY the changed packages. With none (i.e. that PR was merged):
-      # runs `pnpm run release` (build + `changeset publish`), which publishes
-      # ONLY the packages whose version isn't already on the registry, and tags them.
+      # Builds, then publishes ONLY the packages whose version is not already on
+      # the registry. Auth is npm Trusted Publishing (OIDC) via `id-token: write`
+      # — no NPM_TOKEN secret. Provenance is automatic under trusted publishing.
       #
-      # Auth is npm Trusted Publishing (OIDC) via `id-token: write` above — no
-      # NPM_TOKEN secret. This REQUIRES a trusted publisher configured on npm for
-      # each package (Settings > Trusted publisher: this repo + `release.yml`),
-      # which can only be done after the package's first publish. Until then, the
-      # baseline goes out via scripts/first-publish.sh. Provenance is automatic
-      # under trusted publishing, so no --provenance flag is needed.
-      - name: Version or publish
-        uses: changesets/action@v1
-        with:
-          version: pnpm run version
-          publish: pnpm run release
-          commit: "chore: version packages"
-          title: "chore: version packages"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Requires a trusted publisher configured on npm for each package
+      # (Settings > Trusted publisher: this repo + `release.yml`), which can only
+      # be done after a package's first publish; until then the baseline goes out
+      # via scripts/first-publish.sh.
+      - name: Publish
+        run: pnpm run release
