@@ -26,7 +26,7 @@ pnpm test             # vitest run all packages (turbo)
 pnpm lint             # eslint all packages (turbo)
 pnpm format           # prettier --write
 pnpm format:check     # prettier --check
-pnpm changeset        # record a version bump
+pnpm changeset        # optionally record a version bump (not required per PR)
 ```
 
 Run one package's tests: `pnpm --filter @primandproper/cache test`.
