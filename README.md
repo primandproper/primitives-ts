@@ -1,17 +1,21 @@
-# platform-ts
+# primitives-ts
 
-Isomorphic infrastructure abstractions for TypeScript — the sibling of `platform-go`.
+Isomorphic infrastructure abstractions for TypeScript — the sibling of `primitives-go`.
 
 Each package exposes a stable interface with swappable providers selected by config. Most
 packages are **isomorphic**: the same import resolves to the right implementation whether
 it runs on Node or in the browser, so call-site code (e.g. logging) is copy-paste portable
-between backend and frontend.
+between a script and a page.
+
+**Scope: the browser and Node scripts.** No service is built in TypeScript — `platform-go`
+is the only server tier there is — so this module carries nothing that exists to run beside
+a database, a broker or a secret manager. Code that needs to _talk_ to a service built on
+`platform-go` wants `platform-client-ts`, not this.
 
 ## Packages
 
-Every package is exactly one of three modalities (see `CLAUDE.md`): **universal** (pure
-logic, one build), **isomorphic** (same import resolves per-environment), **server-only**
-(Node bundle, may use Node built-ins).
+Every package is exactly one of two modalities (see `CLAUDE.md`): **universal** (pure
+logic, one build) or **isomorphic** (same import resolves per-environment).
 
 ### Universal
 
@@ -26,46 +30,31 @@ logic, one build), **isomorphic** (same import resolves per-environment), **serv
 | `@primandproper/encoding`        | `Encoder`/`ServerEncoderDecoder` over JSON, YAML, XML, TOML             |
 | `@primandproper/circuitbreaking` | Circuit breakers (noop + partitioned)                                   |
 | `@primandproper/version`         | Build-time version and VCS metadata                                     |
+| `@primandproper/qrcodes`         | QR code generation, for TOTP setup flows                                |
 
 ### Isomorphic
 
-| Package                        | Purpose                                                                   |
-| ------------------------------ | ------------------------------------------------------------------------- |
-| `@primandproper/observability` | `Logger` (pino on Node, console in browser) + OTel tracer/meter aliases   |
-| `@primandproper/cache`         | `Cache<T>` (memory/redis on Node, memory/web-storage in browser)          |
-| `@primandproper/cryptography`  | `Encryptor` + `Hasher` over WebCrypto                                     |
-| `@primandproper/random`        | Cryptographically secure random (hex, base32, base64url) over WebCrypto   |
-| `@primandproper/compression`   | `Compressor` interface with swappable providers                           |
-| `@primandproper/cookies`       | `CookieStore` interface with swappable providers                          |
-| `@primandproper/httpclient`    | Thin `fetch` wrapper with OpenTelemetry spans                             |
-| `@primandproper/ratelimiting`  | `RateLimiter` interface with swappable providers                          |
-| `@primandproper/eventstream`   | `EventStream` over SSE and WebSocket                                      |
-| `@primandproper/analytics`     | `EventReporter` interface with swappable providers                        |
-| `@primandproper/eventcapture`  | Non-blocking high-volume event capture draining to a swappable sink       |
-| `@primandproper/idempotency`   | At-most-once execution per client key (manager on Node, keys in either)   |
-| `@primandproper/authorization` | Synchronous permission checks everywhere, policy resolution on the server |
+| Package                        | Purpose                                                                 |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| `@primandproper/observability` | `Logger` (pino on Node, console in browser) + OTel tracer/meter aliases |
+| `@primandproper/cache`         | `Cache<T>` (memory/redis on Node, memory/web-storage in browser)        |
+| `@primandproper/cryptography`  | `Encryptor` + `Hasher` over WebCrypto                                   |
+| `@primandproper/random`        | Cryptographically secure random (hex, base32, base64url) over WebCrypto |
+| `@primandproper/compression`   | `Compressor` interface with swappable providers                         |
+| `@primandproper/cookies`       | `CookieStore` interface with swappable providers                        |
+| `@primandproper/httpclient`    | Thin `fetch` wrapper with OpenTelemetry spans                           |
+| `@primandproper/ratelimiting`  | `RateLimiter` interface with swappable providers                        |
+| `@primandproper/eventstream`   | `EventStream` over SSE and WebSocket                                    |
+| `@primandproper/analytics`     | `EventReporter` interface with swappable providers                      |
+| `@primandproper/eventcapture`  | Non-blocking high-volume event capture draining to a swappable sink     |
+| `@primandproper/featureflags`  | `FeatureFlagManager` with typed evaluation, OpenFeature-backed          |
 
-### Server-only
+## Parity with primitives-go
 
-| Package                          | Purpose                                                          |
-| -------------------------------- | ---------------------------------------------------------------- |
-| `@primandproper/secrets`         | `SecretSource` interface with swappable providers                |
-| `@primandproper/authentication`  | Password hashing, TOTP, and tokens                               |
-| `@primandproper/email`           | `Email` sending interface with swappable providers               |
-| `@primandproper/uploads`         | `UploadManager` object storage with swappable providers          |
-| `@primandproper/messagequeue`    | `Publisher`/`Consumer` interfaces with swappable providers       |
-| `@primandproper/notifications`   | `AsyncNotifier` publisher + mobile `PushNotificationSender`      |
-| `@primandproper/distributedlock` | Acquire/release/refresh distributed locks                        |
-| `@primandproper/featureflags`    | `FeatureFlagManager` with typed evaluation, OpenFeature-backed   |
-| `@primandproper/search`          | Text + document index/search interfaces with swappable providers |
-| `@primandproper/llm`             | LLM completions over Anthropic and OpenAI                        |
-| `@primandproper/healthcheck`     | `Checker` + `Registry` aggregating component health              |
-| `@primandproper/qrcodes`         | QR code generation, for TOTP setup flows                         |
-
-## Parity with platform-go
-
-`platform-go` is the source of truth. See [`PORT_PROGRESS.md`](./PORT_PROGRESS.md) for the
-full package- and provider-level parity breakdown, scope decisions, and remaining work.
+`primitives-go` is the source of truth for behaviour, but **not for scope**: parity is
+deliberately partial. A package lands here when something in the browser or a Node script
+needs it, and packages that only make sense beside server infrastructure are absent on
+purpose rather than pending.
 
 ## Development
 
